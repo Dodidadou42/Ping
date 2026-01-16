@@ -13,7 +13,7 @@ void ping_init(t_ping *p)
     signal(SIGTERM, sig_handler);
 }
 
-void ping_resolve(t_ping *p, const char *host)
+void ping_resolve(t_ping *p)
 {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -21,7 +21,8 @@ void ping_resolve(t_ping *p, const char *host)
     hints.ai_socktype = SOCK_RAW;
     hints.ai_protocol = IPPROTO_ICMP;
 
-    if (getaddrinfo(host, NULL, &hints, &p->addr) != 0)
+
+    if (getaddrinfo(p->hostname, NULL, &hints, &p->addr) != 0)
     {
         perror("getaddrinfo");
         exit(EXIT_FAILURE);
@@ -33,7 +34,7 @@ void ping_resolve(t_ping *p, const char *host)
         ip, sizeof(ip));
 
     printf("PING %s (%s): %d data bytes\n",
-           host, ip, PAYLOAD_SIZE);
+           p->hostname, ip, PAYLOAD_SIZE);
 }
 
 void ping_socket(t_ping *p)

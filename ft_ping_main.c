@@ -1,10 +1,8 @@
 #include "ft_ping.h"
 
+
+
 volatile sig_atomic_t g_stop = 0;
-
-
-
-
 
 void ping_send(t_ping *p)
 {
@@ -16,12 +14,12 @@ void ping_send(t_ping *p)
     icmp->un.echo.id = p->pid;
     icmp->un.echo.sequence = p->seq++;
 
-    /* monotonic timestamp in payload */
+    //monotonic timestamp in payload
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     memcpy(p->sendbuf + ICMP_HDRLEN, &ts, sizeof(ts));
 
-    /* padding like inetutils */
+    // padding 
     for (int i = sizeof(ts); i < PAYLOAD_SIZE; i++)
         p->sendbuf[ICMP_HDRLEN + i] = i;
 
@@ -89,22 +87,40 @@ int ping_receive(t_ping *p)
 
 void ping_loop(t_ping *p)
 {
+    struct timespec now;
+    double sleep_ms;
+
     while (!g_stop)
     {
-        ping_send(p);
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        if (ts_diff_ms(&p->next_send, &now) >= 0){
+            ping_send(p);
+            p->next_send.tv_sec += 1;
+        }
         ping_receive(p);
+
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        sleep_ms = ts_diff_ms(&now, &p->next_send);
+        if (sleep_ms > 0){
+            struct timespec ts = {
+                .tv_sec = (time_t)(sleep_ms / 1000),
+                .tv_nsec = (long)((sleep_ms - (ts.tv_sec * 1000)) * 1e6)
+            };
+            nanosleep(&ts, NULL);
+        }
         sleep(1);
     }
 }
 
-void ping_stats(t_ping *p, const char *host)
+void ping_stats(t_ping *p)
 {
     struct timespec end;
     clock_gettime(CLOCK_MONOTONIC, &end);
 
     double total = ts_diff_ms(&p->start_ts, &end);
 
-    printf("\n--- %s ping statistics ---\n", host);
+    printf("\n--- %s ping statistics ---\n", p->hostname);
     printf("%d packets transmitted, %d received, %.1f%% packet loss, time %.0f ms\n",
            p->sent, p->received,
            p->sent ? (100.0 * (p->sent - p->received) / p->sent) : 0.0,
@@ -123,19 +139,37 @@ void ping_stats(t_ping *p, const char *host)
 }
 
 
+void confirm_option(char *option, t_ping *ping){
+    if (strcmp(option, "-v") == 0)
+        ping->verbose = 1;
+    else {
+        fprintf(stderr, "Unknown option : %s\n", option);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void parse_options(int argc, char **argv, t_ping *ping){
+    if (argc < 2){
+        fprintf(stderr, "Usage: %s <host>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+   
+    for (int i = 1; i < argc - 1; i++)
+        confirm_option(argv[i], ping);
+
+    ping->hostname = argv[argc - 1];
+    
+
+}
+
 int main(int argc, char **argv)
 {
-    if (argc != 2)
-    {
-        fprintf(stderr, "Usage: %s <host>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
     t_ping p;
     ping_init(&p);
-    ping_resolve(&p, argv[1]);
+    parse_options(argc, argv, &p);
+    ping_resolve(&p);
     ping_socket(&p);
     ping_loop(&p);
-    ping_stats(&p, argv[1]);
+    ping_stats(&p);
     return EXIT_SUCCESS;
 }

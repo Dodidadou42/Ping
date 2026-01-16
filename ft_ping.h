@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <linux/time.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
@@ -31,31 +32,31 @@ typedef struct s_ping
     struct addrinfo     *addr;
     struct sockaddr_in  reply_addr;
 
+    char                *hostname;
+
     unsigned char       sendbuf[PACKET_SIZE];
     unsigned char       recvbuf[RECVBUF_SIZE];
 
     pid_t               pid;
     int                 seq;
 
-    int                 sent;
-    int                 received;
+    int                 sent, received;
 
-    double              rtt_min;
-    double              rtt_max;
-    double              rtt_sum;
-    double              rtt_mdev_sum;
+    double              rtt_min, rtt_max, rtt_sum, rtt_mdev_sum;
 
-    struct timespec     start_ts;
+    struct timespec     start_ts, next_send;
+
+    int                 verbose;
 }   t_ping;
 
 extern volatile sig_atomic_t g_stop;
 void    sig_handler(int sig);
 
 void    ping_init(t_ping *p);
-void    ping_resolve(t_ping *p, const char *host);
+void    ping_resolve(t_ping *p);
 void    ping_socket(t_ping *p);
 void    ping_loop(t_ping *p);
-void    ping_stats(t_ping *p, const char *host);
+void    ping_stats(t_ping *p);
 
 
 void            ping_send(t_ping *p);
