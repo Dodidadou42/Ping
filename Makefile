@@ -1,7 +1,7 @@
 NAME    = ft_ping
 
 
-SRCS    = ft_ping_main.c ft_ping_init.c ft_ping_utils.c
+SRCS    = ft_ping_main.c ft_ping_init.c ft_ping_utils.c ft_ping_parsing.c
 INCLUDES = ft_ping.h
 OBJS    =   ${SRCS:.c=.o}
 

@@ -8,6 +8,7 @@ void ping_init(t_ping *p)
     p->seq = 1;
     p->rtt_min = 1e9;
     clock_gettime(CLOCK_MONOTONIC, &p->start_ts);
+    
 
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
@@ -33,8 +34,12 @@ void ping_resolve(t_ping *p)
         &((struct sockaddr_in *)p->addr->ai_addr)->sin_addr,
         ip, sizeof(ip));
 
-    printf("PING %s (%s): %d data bytes\n",
+    printf("PING %s (%s): %d data bytes",
            p->hostname, ip, PAYLOAD_SIZE);
+    if (p->verbose)
+        printf(", id 0x%X = %d", p->pid, p->pid);
+    printf("\n");
+    
 }
 
 void ping_socket(t_ping *p)
