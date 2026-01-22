@@ -7,7 +7,6 @@ OBJS    =   ${SRCS:.c=.o}
 
 CC      = gcc
 CFLAGS  = -Wall -Wextra -Werror -lm
-VALGRIND = valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes
 
 GREEN   = \033[32m
 YELLOW  = \033[33m
