@@ -22,7 +22,7 @@ void ping_receive(t_ping *p){
     struct iphdr *ip = (struct iphdr *)p->recvbuf;
     struct icmphdr *icmp = (struct icmphdr *)(p->recvbuf + (ip->ihl * 4));
     if (icmp->type != ICMP_ECHOREPLY || icmp->un.echo.id != p->pid)
-         handle_invalid_reply(p, &from, icmp);
+        handle_invalid_reply(p, &from, icmp, n);
     else 
         calculate_and_print_rtt(p, ip, icmp, &n, &from);
 }
@@ -49,12 +49,16 @@ void calculate_and_print_rtt(t_ping *p, struct iphdr *ip, struct icmphdr *icmp, 
     return;
 }
 
-void handle_invalid_reply(t_ping *p, struct sockaddr_in *from, struct icmphdr *icmp){
-    // Paquet = Ip header + ICMP error hdr + Original IP hdr + original icmp hdr 
+void handle_invalid_reply(t_ping *p, struct sockaddr_in *from, struct icmphdr *icmp, ssize_t len){
+    // check packet integrity
+    if (len < (ssize_t)(sizeof(struct icmphdr) + sizeof(struct iphdr)))
+        return;
+    
+    // Packet = Ip header + ICMP error hdr + Original IP hdr + original icmp hdr 
     struct iphdr *orig_ip = (struct iphdr *)((char *)icmp + 8);
     struct icmphdr *orig_icmp = (struct icmphdr *)((char *)orig_ip + (orig_ip->ihl * 4));
 
-    if (orig_icmp->un.echo.id != p->pid) // autre destinataire
+    if (orig_icmp->un.echo.id != p->pid) // other recipient
         return;
     printf("From %s: ", inet_ntoa(from->sin_addr));
     if (icmp->type == ICMP_TIME_EXCEEDED || icmp->type == ICMP_REDIRECT)

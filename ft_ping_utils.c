@@ -1,17 +1,5 @@
 #include "ft_ping.h"
 
-void sig_handler(int sig)
-{
-    (void)sig;
-    g_stop = 1;
-}
-
-double timespec_diff_ms(struct timespec *start, struct timespec *end) {
-    return (double)(end->tv_sec - start->tv_sec) * 1000.0 +
-           (double)(end->tv_nsec - start->tv_nsec) / 1000000.0;
-}
-
-
 unsigned short icmp_checksum(void *buf, int len)
 {
     unsigned int sum = 0;
@@ -58,20 +46,8 @@ int timespec_sign(struct timespec ts) {
     return 1;
 }
 
-void usage_error(char *msg){
-    fprintf(stderr, "%s\n", msg);
-    fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
-    exit(EXIT_FAILURE);
+double timespec_diff_ms(struct timespec *start, struct timespec *end) {
+    return (double)(end->tv_sec - start->tv_sec) * 1000.0 +
+           (double)(end->tv_nsec - start->tv_nsec) / 1000000.0;
 }
 
-void usage()
-{
-    fprintf(stderr, "Usage: ft_ping [OPTION...] HOST ...\n");
-    fprintf(stderr, "Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
-    fprintf(stderr, " Options:\n");
-    fprintf(stderr, "  -v, --verbose      verbose output\n");
-    fprintf(stderr, "  -?, --help         give this help list\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Report bugs to <ddychus@student.42.fr>.\n");
-    exit(EXIT_SUCCESS);
-}

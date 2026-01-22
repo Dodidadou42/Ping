@@ -35,7 +35,7 @@ void ping_loop(t_ping *p){
         }
         else if (n == 1)
             ping_receive(p);
-        else { // Timeout pselect, on send
+        else { // Timeout pselect, sending
             ping_send(p);
             clock_gettime(CLOCK_MONOTONIC, &last);
         }
@@ -86,3 +86,8 @@ void ping_stats(t_ping *p){
 
 
 
+void sig_handler(int sig)
+{
+    (void)sig;
+    g_stop = 1;
+}
