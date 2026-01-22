@@ -1,7 +1,6 @@
-#include "ft_ping.h"
+#include "../includes/ft_ping.h"
 
 volatile sig_atomic_t g_stop = 0;
-
 
 int main(int argc, char **argv){
     if (argc < 2)

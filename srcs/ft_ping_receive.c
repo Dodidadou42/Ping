@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "../includes/ft_ping.h"
 
 void ping_receive(t_ping *p){
     struct msghdr msg;

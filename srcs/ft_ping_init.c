@@ -1,5 +1,4 @@
-#include "ft_ping.h"
-
+#include "../includes/ft_ping.h"
 
 void ping_init(t_ping *p)
 {

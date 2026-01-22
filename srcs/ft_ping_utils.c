@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "../includes/ft_ping.h"
 
 unsigned short icmp_checksum(void *buf, int len)
 {

@@ -1,7 +1,8 @@
 NAME    = ft_ping
 
-SRCS    = ft_ping_main.c ft_ping_init.c ft_ping_utils.c ft_ping_receive.c
-INCLUDES = ft_ping.h
+SRCS    = srcs/ft_ping_main.c srcs/ft_ping_init.c \
+			srcs/ft_ping_utils.c srcs/ft_ping_receive.c
+INCLUDES = includes/ft_ping.h
 OBJS    =   ${SRCS:.c=.o}
 
 CC      = gcc
