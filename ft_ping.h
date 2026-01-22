@@ -42,40 +42,33 @@ typedef struct s_ping
 
     int                 sent, received;
 
-    double              rtt_min, rtt_max, rtt_sum, rtt_mdev_sum;
+    double              rtt_min, rtt_max, rtt_sum, rtt_sq_sum;
 
-    struct timespec     start_ts, last_sent;
+    struct timespec     start_ts;
 
     int                 verbose;
 }   t_ping;
-
-typedef struct s_recvmsg_data {
-    struct msghdr msg;
-    struct iovec iov;
-    struct sockaddr_in from;
-    char control_buf[128];
-} t_recvmsg_data;
-
 
 extern volatile sig_atomic_t g_stop;
 void    sig_handler(int sig);
 
 void    ping_init(t_ping *p);
 void    ping_resolve(t_ping *p);
-void    ping_socket(t_ping *p);
 void    ping_loop(t_ping *p);
 void    ping_stats(t_ping *p);
 
 
-int            ping_send(t_ping *p);
-int             ping_receive(t_ping *p);
+void            ping_send(t_ping *p);
+void             ping_receive(t_ping *p);
 unsigned short  icmp_checksum(void *buf, int len);
 
-int calculate_and_print_rtt(t_ping *p, struct iphdr *ip, struct icmphdr *icmp, ssize_t *n, struct sockaddr_in *from);
+void calculate_and_print_rtt(t_ping *p, struct iphdr *ip, struct icmphdr *icmp, ssize_t *n, struct sockaddr_in *from);
+void handle_invalid_reply(t_ping *p, struct sockaddr_in *from, struct icmphdr *icmp);
+void handle_dest_unreach(const int code);
+void handle_ttl_exceed_and_redirect(const int type, const int code);
 
 
 double  timespec_diff_ms(struct timespec *a, struct timespec *b);
-
 struct timespec timespec_sub(struct timespec a, struct timespec b);
 struct timespec timespec_add(struct timespec a, struct timespec b);
 int timespec_sign(struct timespec ts);

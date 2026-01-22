@@ -57,3 +57,21 @@ int timespec_sign(struct timespec ts) {
     if (ts.tv_sec == 0 && ts.tv_nsec <= 0) return -1;
     return 1;
 }
+
+void usage_error(char *msg){
+    fprintf(stderr, "%s\n", msg);
+    fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
+    exit(EXIT_FAILURE);
+}
+
+void usage()
+{
+    fprintf(stderr, "Usage: ft_ping [OPTION...] HOST ...\n");
+    fprintf(stderr, "Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
+    fprintf(stderr, " Options:\n");
+    fprintf(stderr, "  -v, --verbose      verbose output\n");
+    fprintf(stderr, "  -?, --help         give this help list\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Report bugs to <ddychus@student.42.fr>.\n");
+    exit(EXIT_SUCCESS);
+}
