@@ -24,5 +24,5 @@ _Note: Requires root privileges to open Raw Sockets._
 
 ```bash
 make
-sudo ./ft_pin
+sudo ./ft_ping -options host
 ```
